@@ -155,7 +155,35 @@
       padding-bottom: 0.7rem;
       border-bottom: 1px solid var(--navy-faint);
       margin-bottom: 2rem;
+      scroll-margin-top: 130px;
     }
+
+    /* ── Table of Contents ── */
+    .toc {
+      margin: 0 8% 3rem;
+      padding: 1.4rem 1.8rem;
+      border: 1px solid var(--navy-faint);
+    }
+    .toc-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.35em;
+      color: var(--navy);
+      opacity: 0.5;
+      margin-bottom: 0.9rem;
+    }
+    .toc-list { list-style: none; }
+    .toc-list li + li { margin-top: 0.3em; }
+    .toc-list a {
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      color: var(--navy);
+      text-decoration: none;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    .toc-list a:hover { opacity: 1; }
+    .toc-h2 { padding-left: 1em; }
+    .toc-h3 { padding-left: 2em; }
     .body-text {
       font-size: 0.93rem;
       line-height: 2.2;
@@ -275,6 +303,9 @@
     <p class="issue-date" id="issueDate"></p>
   </div>
 
+  <!-- 目次 -->
+  <nav class="toc" id="toc" style="display:none"></nav>
+
   <!-- 本文エリア -->
   <div class="article-body">
     <a href="tsushin.html" class="back-link fi">← 通信一覧に戻る</a>
@@ -336,6 +367,22 @@
     return str ? str.replace(/-/g, '.') : '';
   }
 
+  function buildToc(blocks) {
+    const headings = blocks.filter(b =>
+      b.type === 'heading_1' || b.type === 'heading_2' || b.type === 'heading_3'
+    );
+    if (headings.length === 0) return '';
+
+    const items = headings.map(block => {
+      const rt = (block[block.type]?.rich_text || []).map(t => t.plain_text).join('');
+      const cls = block.type === 'heading_2' ? ' class="toc-h2"'
+                : block.type === 'heading_3' ? ' class="toc-h3"' : '';
+      return `<li${cls}><a href="#${block.id}">${rt}</a></li>`;
+    }).join('');
+
+    return `<p class="toc-label">目次</p><ul class="toc-list">${items}</ul>`;
+  }
+
   function blocksToHtml(blocks) {
     let html = '';
     let bodyBuf = [];
@@ -352,7 +399,7 @@
 
       if (type === 'heading_1' || type === 'heading_2' || type === 'heading_3') {
         flushBody();
-        html += `<h2 class="section-heading fi">${rt}</h2>`;
+        html += `<h2 class="section-heading fi" id="${block.id}">${rt}</h2>`;
       } else if (type === 'paragraph') {
         if (rt) bodyBuf.push(`<p>${rt}</p>`);
       } else if (type === 'bulleted_list_item' || type === 'numbered_list_item') {
@@ -398,6 +445,15 @@
       }
 
       content.querySelectorAll('.fi').forEach(el => io.observe(el));
+
+      const toc = document.getElementById('toc');
+      const tocHtml = buildToc(blocks);
+      if (tocHtml) {
+        toc.innerHTML = tocHtml;
+        toc.style.display = '';
+        toc.classList.add('fi');
+        io.observe(toc);
+      }
     } catch (e) {
       document.getElementById('issueNumber').textContent = '記事の取得に失敗しました';
     }
