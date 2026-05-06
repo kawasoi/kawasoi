@@ -18,6 +18,17 @@ module.exports = async function handler(req, res) {
 
   const pageId = req.query.id;
 
+  function processBlocks(blocks) {
+    return blocks.map(block => {
+      if (block.type !== 'paragraph') return block;
+      const rt = (block.paragraph.rich_text || []).map(t => ({
+        ...t,
+        plain_text: t.plain_text.replace(/\n/g, '<br>'),
+      }));
+      return { ...block, paragraph: { ...block.paragraph, rich_text: rt } };
+    });
+  }
+
   try {
     if (pageId) {
       const [pageRes, blocksRes] = await Promise.all([
@@ -25,7 +36,7 @@ module.exports = async function handler(req, res) {
         fetch(`https://api.notion.com/v1/blocks/${pageId}/children?page_size=100`, { headers: notionHeaders }),
       ]);
       const [page, blocks] = await Promise.all([pageRes.json(), blocksRes.json()]);
-      return res.status(200).json({ page, blocks: blocks.results ?? [] });
+      return res.status(200).json({ page, blocks: processBlocks(blocks.results ?? []) });
     }
 
     const dbRes = await fetch(`https://api.notion.com/v1/databases/${DB_ID}/query`, {
