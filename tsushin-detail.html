@@ -270,32 +270,15 @@
 <div class="page">
 
   <!-- タイトルエリア -->
-  <div class="issue-header fi">
-    <p class="issue-number">第16号</p>
-    <p class="issue-date">2026.04.12</p>
+  <div class="issue-header fi" id="issueHeader">
+    <p class="issue-number" id="issueNumber">読み込み中...</p>
+    <p class="issue-date" id="issueDate"></p>
   </div>
 
   <!-- 本文エリア -->
   <div class="article-body">
-
     <a href="tsushin.html" class="back-link fi">← 通信一覧に戻る</a>
-
-    <!-- セクション1 -->
-    <h2 class="section-heading fi">近況</h2>
-    <div class="body-text fi">
-      <p>春の終わりに、ある川のそばを歩いた。水面はおだやかで、光がやわらかく揺れていた。その日持っていた文庫本を土手に腰を下ろして開いたとき、ページの白さと川のひかりが、なぜかひとつのものに見えた。</p>
-      <p>店の窓から見える川も、この季節はすこし緑がかった色をしている。朝、シャッターを開けながらその流れを見るのが、最近の小さな楽しみになっている。</p>
-      <p>今月は新刊の入荷も多く、棚が少しにぎやかになった。選んだ本のことを、またここで書いていけたらと思っている。</p>
-    </div>
-
-    <!-- セクション2 -->
-    <h2 class="section-heading fi">近刊の紹介</h2>
-    <img src="images/kawasoi_sq_2.jpg" alt="近刊" class="book-image fi">
-    <div class="body-text fi">
-      <p>今月おすすめしたい一冊は、内田百閒の『冥途』です。夢と現の境界が溶けていくような短篇集で、百閒の文章の静謐な美しさをあらためて感じることができます。</p>
-      <p>読み始めると、どこか川の底を漂っているような感覚になります。春のおだやかな午後に、ぜひ手にとっていただきたい本です。店頭でもご覧いただけます。</p>
-    </div>
-
+    <div id="articleContent"></div>
   </div>
 
   <!-- Footer -->
@@ -340,6 +323,84 @@
     { threshold: 0.08, rootMargin: '0px 0px -20px 0px' }
   );
   document.querySelectorAll('.fi').forEach(el => io.observe(el));
+
+  function getPropText(prop) {
+    if (!prop) return '';
+    if (prop.type === 'title') return (prop.title || []).map(t => t.plain_text).join('');
+    if (prop.type === 'rich_text') return (prop.rich_text || []).map(t => t.plain_text).join('');
+    if (prop.type === 'number') return prop.number != null ? `第${prop.number}号` : '';
+    return '';
+  }
+
+  function formatDate(str) {
+    return str ? str.replace(/-/g, '.') : '';
+  }
+
+  function blocksToHtml(blocks) {
+    let html = '';
+    let bodyBuf = [];
+
+    function flushBody() {
+      if (bodyBuf.length === 0) return;
+      html += `<div class="body-text fi">${bodyBuf.join('')}</div>`;
+      bodyBuf = [];
+    }
+
+    blocks.forEach(block => {
+      const type = block.type;
+      const rt = (block[type]?.rich_text || []).map(t => t.plain_text).join('');
+
+      if (type === 'heading_1' || type === 'heading_2' || type === 'heading_3') {
+        flushBody();
+        html += `<h2 class="section-heading fi">${rt}</h2>`;
+      } else if (type === 'paragraph') {
+        if (rt) bodyBuf.push(`<p>${rt}</p>`);
+      } else if (type === 'bulleted_list_item' || type === 'numbered_list_item') {
+        if (rt) bodyBuf.push(`<p>・${rt}</p>`);
+      }
+    });
+
+    flushBody();
+    return html;
+  }
+
+  async function loadArticle() {
+    const params = new URLSearchParams(location.search);
+    const id = params.get('id');
+
+    if (!id) {
+      document.getElementById('issueNumber').textContent = '記事が見つかりません';
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/notion?id=${encodeURIComponent(id)}`);
+      const data = await res.json();
+
+      const props = data.page?.properties || {};
+      const issueNum = getPropText(props['号数']);
+      const dateStr = formatDate(props['発行日']?.date?.start || '');
+
+      document.getElementById('issueNumber').textContent = issueNum || '通信';
+      document.getElementById('issueDate').textContent = dateStr;
+      if (issueNum) document.title = `${issueNum} — 通信 | 川添い`;
+
+      const content = document.getElementById('articleContent');
+      const blocks = data.blocks || [];
+
+      if (blocks.length > 0) {
+        content.innerHTML = blocksToHtml(blocks);
+      } else {
+        content.innerHTML = '<div class="body-text fi"><p>本文がありません。</p></div>';
+      }
+
+      content.querySelectorAll('.fi').forEach(el => io.observe(el));
+    } catch (e) {
+      document.getElementById('issueNumber').textContent = '記事の取得に失敗しました';
+    }
+  }
+
+  loadArticle();
 </script>
 
 </body>

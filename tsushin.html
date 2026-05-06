@@ -283,75 +283,8 @@
   <h1 class="tsushin-page-heading fi">通信</h1>
 
   <!-- 記事一覧 -->
-  <ul class="article-list">
-
-    <!-- 最新1 -->
-    <li class="article-item fi">
-      <p class="article-meta">
-        2026.04.12
-        <span class="article-meta-divider"></span>
-        第16号
-      </p>
-      <p class="article-excerpt">
-        春の終わりに、ある川のそばを歩いた。水面はおだやかで、光がやわらかく揺れていた。その日持っていた文庫本を土手に腰を下ろして開いたとき、ページの白さと川のひかりが、なぜかひとつのものに見えた。
-      </p>
-      <a href="tsushin-detail.html" class="article-read-more">続きを読む</a>
-    </li>
-
-    <!-- 最新2 -->
-    <li class="article-item fi">
-      <p class="article-meta">
-        2026.03.08
-        <span class="article-meta-divider"></span>
-        第15号
-      </p>
-      <p class="article-excerpt">
-        冬が終わるころ、店の棚を整理した。売れた本の跡が残る棚は、どこかさびしくもあり、清々しくもある。次に来る本のことを考えながら、一枚一枚棚板を拭いた。
-      </p>
-      <a href="tsushin-detail.html" class="article-read-more">続きを読む</a>
-    </li>
-
-    <!-- 最新3 -->
-    <li class="article-item fi">
-      <p class="article-meta">
-        2026.02.01
-        <span class="article-meta-divider"></span>
-        第14号
-      </p>
-      <p class="article-excerpt">
-        展示「冬の部屋」が終わった。小さな会場に、思いのほか多くの方が来てくださった。終わったあとの静けさの中で、あの数日間のことをゆっくり書き留めておきたいと思う。
-      </p>
-      <a href="tsushin-detail.html" class="article-read-more">続きを読む</a>
-    </li>
-
-    <!-- 4件目以降：本文なし -->
-    <li class="article-item fi">
-      <p class="article-meta">
-        2026.01.05
-        <span class="article-meta-divider"></span>
-        第13号
-      </p>
-      <a href="tsushin-detail.html" class="article-read-more">続きを読む</a>
-    </li>
-
-    <li class="article-item fi">
-      <p class="article-meta">
-        2025.12.01
-        <span class="article-meta-divider"></span>
-        第12号
-      </p>
-      <a href="tsushin-detail.html" class="article-read-more">続きを読む</a>
-    </li>
-
-    <li class="article-item fi">
-      <p class="article-meta">
-        2025.11.03
-        <span class="article-meta-divider"></span>
-        第11号
-      </p>
-      <a href="tsushin-detail.html" class="article-read-more">続きを読む</a>
-    </li>
-
+  <ul class="article-list" id="articleList">
+    <li class="article-item" id="loadingItem" style="text-align:center;opacity:0.5;font-size:0.85rem;letter-spacing:0.1em;border-top:1px solid rgba(1,61,114,0.15);">読み込み中...</li>
   </ul>
 
   <!-- Footer -->
@@ -396,6 +329,53 @@
     { threshold: 0.08, rootMargin: '0px 0px -20px 0px' }
   );
   document.querySelectorAll('.fi').forEach(el => io.observe(el));
+
+  function getPropText(prop) {
+    if (!prop) return '';
+    if (prop.type === 'title') return (prop.title || []).map(t => t.plain_text).join('');
+    if (prop.type === 'rich_text') return (prop.rich_text || []).map(t => t.plain_text).join('');
+    if (prop.type === 'number') return prop.number != null ? `第${prop.number}号` : '';
+    return '';
+  }
+
+  function formatDate(str) {
+    return str ? str.replace(/-/g, '.') : '';
+  }
+
+  async function loadArticles() {
+    const list = document.getElementById('articleList');
+    try {
+      const res = await fetch('/api/notion');
+      const data = await res.json();
+      const pages = data.results || [];
+
+      list.innerHTML = '';
+      pages.forEach(page => {
+        const props = page.properties || {};
+        const issueNum = getPropText(props['号数']);
+        const dateStr = formatDate(props['発行日']?.date?.start || '');
+        const bodyText = getPropText(props['本文']);
+        const excerpt = bodyText.length > 100 ? bodyText.slice(0, 100) + '…' : bodyText;
+
+        const li = document.createElement('li');
+        li.className = 'article-item fi';
+        li.innerHTML = `
+          <p class="article-meta">
+            ${dateStr}${dateStr && issueNum ? '<span class="article-meta-divider"></span>' : ''}${issueNum}
+          </p>
+          ${excerpt ? `<p class="article-excerpt">${excerpt}</p>` : ''}
+          <a href="tsushin-detail.html?id=${page.id}" class="article-read-more">続きを読む</a>
+        `;
+        list.appendChild(li);
+      });
+
+      list.querySelectorAll('.fi').forEach(el => io.observe(el));
+    } catch (e) {
+      list.innerHTML = '<li class="article-item" style="text-align:center;opacity:0.5;border-top:1px solid rgba(1,61,114,0.15);">記事の取得に失敗しました。</li>';
+    }
+  }
+
+  loadArticles();
 </script>
 
 </body>
