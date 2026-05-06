@@ -46,11 +46,14 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ page, blocks: processBlocks(blocks.results ?? []) });
     }
 
+    const limit = req.query.limit ? parseInt(req.query.limit, 10) : undefined;
+
     const dbRes = await fetch(`https://api.notion.com/v1/databases/${DB_ID}/query`, {
       method: 'POST',
       headers: notionHeaders,
       body: JSON.stringify({
         sorts: [{ property: '発行日', direction: 'descending' }],
+        ...(limit ? { page_size: limit } : {}),
       }),
     });
     const data = await dbRes.json();

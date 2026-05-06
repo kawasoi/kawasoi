@@ -818,28 +818,7 @@
     <div class="sec-tsushin-inner">
     <h2 class="tsushin-heading fi">通信</h2>
 
-    <!-- 最新号 -->
-    <div class="tsushin-issue tsushin-card fi" onclick="location.href='tsushin-detail.html'">
-      <p class="tsushin-issue-meta">
-        2026.04.12
-        <span class="tsushin-issue-divider"></span>
-        第16号
-      </p>
-      <p class="tsushin-issue-body">
-        春の終わりに、ある川のそばを歩いた。水面はおだやかで、光がやわらかく揺れていた。その日持っていた文庫本を土手に腰を下ろして開いたとき、ページの白さと川のひかりが、なぜかひとつのものに見えた。
-      </p>
-      <div class="page-curl"></div>
-    </div>
-
-    <!-- 2件目 -->
-    <div class="tsushin-issue tsushin-card fi" onclick="location.href='tsushin-detail.html'">
-      <p class="tsushin-issue-meta">
-        2026.03.08
-        <span class="tsushin-issue-divider"></span>
-        第15号
-      </p>
-      <div class="page-curl"></div>
-    </div>
+    <div id="tsushinList"></div>
 
     <a href="tsushin.html" class="tsushin-sakoboru fi">遡る</a>
     </div>
@@ -961,6 +940,48 @@
       siteHeader.style.visibility = 'visible';
     }
   });
+
+  // 通信：最新2件をNotionから動的取得
+  function getPropText(prop) {
+    if (!prop) return '';
+    if (prop.type === 'title') return (prop.title || []).map(t => t.plain_text).join('');
+    if (prop.type === 'rich_text') return (prop.rich_text || []).map(t => t.plain_text).join('');
+    if (prop.type === 'number') return prop.number != null ? `第${prop.number}号` : '';
+    return '';
+  }
+
+  async function loadTsushin() {
+    const container = document.getElementById('tsushinList');
+    try {
+      const res = await fetch('/api/notion?limit=2');
+      const data = await res.json();
+      const pages = (data.results || []).slice(0, 2);
+
+      container.innerHTML = pages.map(page => {
+        const props = page.properties || {};
+        const issueNum = getPropText(props['号数']);
+        const dateStr = props['発行日']?.date?.start?.replace(/-/g, '.') || '';
+        const bodyText = page.excerpt || '';
+        const excerpt = bodyText.length > 100 ? bodyText.slice(0, 100) + '…' : bodyText;
+
+        return `
+          <div class="tsushin-issue tsushin-card fi" onclick="location.href='tsushin-detail.html?id=${page.id}'">
+            <p class="tsushin-issue-meta">
+              ${dateStr}${dateStr && issueNum ? '<span class="tsushin-issue-divider"></span>' : ''}${issueNum}
+            </p>
+            ${excerpt ? `<p class="tsushin-issue-body">${excerpt}</p>` : ''}
+            <div class="page-curl"></div>
+          </div>
+        `;
+      }).join('');
+
+      container.querySelectorAll('.fi').forEach(el => io.observe(el));
+    } catch (e) {
+      // 取得失敗時はスペースを残さない
+    }
+  }
+
+  loadTsushin();
 
   // News bar fade on scroll
   const newsBar = document.querySelector('.fv-news');
