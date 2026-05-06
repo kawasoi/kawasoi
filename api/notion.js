@@ -59,15 +59,22 @@ module.exports = async function handler(req, res) {
     const results = await Promise.all(
       (data.results || []).map(async (page) => {
         const blocksRes = await fetch(
-          `https://api.notion.com/v1/blocks/${page.id}/children?page_size=10`,
+          `https://api.notion.com/v1/blocks/${page.id}/children?page_size=50`,
           { headers: notionHeaders }
         );
         const blocks = await blocksRes.json();
-        const firstParagraph = (blocks.results || []).find(b => b.type === 'paragraph');
+        const blockResults = blocks.results || [];
+
+        const firstParagraph = blockResults.find(b => b.type === 'paragraph');
         const excerpt = firstParagraph
           ? (firstParagraph.paragraph.rich_text || []).map(t => t.plain_text).join('').replace(/\n/g, '<br>')
           : '';
-        return { ...page, excerpt };
+
+        const toc = blockResults
+          .filter(b => b.type === 'heading_1' || b.type === 'heading_2' || b.type === 'heading_3')
+          .map(b => (b[b.type]?.rich_text || []).map(t => t.plain_text).join(''));
+
+        return { ...page, excerpt, toc };
       })
     );
 

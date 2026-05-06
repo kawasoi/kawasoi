@@ -171,6 +171,20 @@
       word-break: normal;
       overflow-wrap: break-word;
     }
+    .article-toc {
+      list-style: none;
+      margin-bottom: 1.2rem;
+    }
+    .article-toc li {
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      color: var(--navy);
+      opacity: 0.65;
+      line-height: 2;
+    }
+    .article-toc li::before {
+      content: '・';
+    }
     .article-read-more {
       display: inline-block;
       font-size: 0.72rem;
@@ -356,6 +370,7 @@
         const dateStr = formatDate(props['発行日']?.date?.start || '');
         const bodyText = page.excerpt || '';
         const excerpt = bodyText.length > 100 ? bodyText.slice(0, 100) + '…' : bodyText;
+        const toc = page.toc || [];
 
         const li = document.createElement('li');
         li.className = 'article-item fi';
@@ -363,6 +378,7 @@
           <p class="article-meta">
             ${dateStr}${dateStr && issueNum ? '<span class="article-meta-divider"></span>' : ''}${issueNum}
           </p>
+          ${toc.length > 0 ? `<ul class="article-toc">${toc.map(t => `<li>${t}</li>`).join('')}</ul>` : ''}
           ${excerpt ? `<p class="article-excerpt">${excerpt}</p>` : ''}
           <a href="tsushin-detail.html?id=${page.id}" class="article-read-more">続きを読む</a>
         `;
