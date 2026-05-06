@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第16号 — 通信 | 川添い</title>
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+  <style>
+    * { font-weight: 700 !important; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:       #013d72;
+      --navy-mid:   rgba(1,61,114,0.55);
+      --navy-faint: rgba(1,61,114,0.14);
+    }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      font-family: "Yu Mincho", "游明朝", "YuMincho",
+                   "Hiragino Mincho ProN", "Hiragino Mincho Pro", serif;
+      font-weight: 700;
+      background: #ffffff;
+      color: var(--navy);
+      line-height: 2.2;
+      overflow-x: hidden;
+    }
+
+    /* ── Header ── */
+    .site-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 200;
+      height: 116px;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.4rem;
+      transition: background-color 0.3s ease;
+    }
+    .site-header:hover { background-color: #D0E0EF; }
+    .header-logo { display: block; text-decoration: none; }
+    .header-logo img {
+      height: 100px;
+      width: auto;
+      display: block;
+      transition: opacity 0.3s ease;
+    }
+    .site-header:hover .header-logo img { opacity: 0.3; }
+    .hamburger {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: "Yu Mincho", "游明朝", serif;
+      font-size: 2rem;
+      color: var(--navy);
+      line-height: 1;
+      padding: 0 0.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.3s ease;
+    }
+    .site-header:hover .hamburger { color: var(--navy); }
+
+    /* ── Nav Overlay ── */
+    .nav-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 190;
+      background: rgba(255,255,255,0.97);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .nav-overlay.open { opacity: 1; pointer-events: all; }
+    .nav-overlay a {
+      text-decoration: none;
+      color: var(--navy);
+      font-size: 1.05rem;
+      letter-spacing: 0.45em;
+      transition: opacity 0.2s;
+    }
+    .nav-overlay a:hover { opacity: 0.5; }
+    .nav-close {
+      position: absolute;
+      top: 14px;
+      right: 1.4rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: "Yu Mincho", "游明朝", serif;
+      font-size: 1.5rem;
+      color: var(--navy);
+      line-height: 1;
+    }
+
+    /* ── Page ── */
+    .page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding-top: 116px;
+    }
+
+    /* ── Title area ── */
+    .issue-header {
+      text-align: center;
+      padding: 4rem 1.6rem 3rem;
+      border-bottom: 1px solid var(--navy-faint);
+      margin-bottom: 3rem;
+    }
+    .issue-number {
+      font-size: 1.6rem;
+      letter-spacing: 0.2em;
+      color: var(--navy);
+      margin-bottom: 0.8rem;
+    }
+    .issue-date {
+      font-size: 0.78rem;
+      letter-spacing: 0.2em;
+      color: var(--navy);
+      opacity: 0.55;
+    }
+
+    /* ── Body area ── */
+    .article-body {
+      padding: 0 8% 6rem;
+    }
+    .back-link {
+      display: inline-block;
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      color: var(--navy);
+      opacity: 0.45;
+      text-decoration: none;
+      margin-bottom: 3rem;
+      transition: opacity 0.2s;
+    }
+    .back-link:hover { opacity: 0.9; }
+
+    .section-heading {
+      font-size: 1rem;
+      letter-spacing: 0.12em;
+      color: var(--navy);
+      padding-bottom: 0.7rem;
+      border-bottom: 1px solid var(--navy-faint);
+      margin-bottom: 2rem;
+    }
+    .body-text {
+      font-size: 0.93rem;
+      line-height: 2.2;
+      color: var(--navy);
+      letter-spacing: 0.04em;
+      margin-bottom: 5rem;
+    }
+    .body-text p {
+      text-indent: 1em;
+      margin-bottom: 2.2em;
+      word-break: normal;
+      overflow-wrap: break-word;
+    }
+    .body-text p:last-child { margin-bottom: 0; }
+
+    .book-image {
+      width: 100%;
+      max-width: 280px;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      display: block;
+      margin: 0 auto 4rem;
+    }
+
+    /* ── Footer ── */
+    footer {
+      background: #ffffff;
+      border-top: 1px solid rgba(1,61,114,0.15);
+      padding: 2.8rem 1.6rem;
+    }
+    .footer-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: stretch;
+      gap: 1.5rem;
+    }
+    .footer-shop-name {
+      font-size: 1.05rem;
+      letter-spacing: 0.2em;
+      color: var(--navy);
+      margin-bottom: 0.8rem;
+    }
+    .footer-info {
+      font-size: 0.7rem;
+      line-height: 2;
+      color: var(--navy);
+      letter-spacing: 0.04em;
+    }
+    .footer-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+    .footer-instagram {
+      display: flex;
+      align-items: center;
+      gap: 0.45em;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      color: var(--navy);
+      text-decoration: none;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    .footer-instagram:hover { opacity: 1; }
+    .footer-copy {
+      font-size: 0.6rem;
+      letter-spacing: 0.06em;
+      color: var(--navy);
+      opacity: 0.45;
+    }
+    @media (max-width: 400px) {
+      .footer-shop-name { font-size: 0.9rem; }
+      .footer-info { font-size: 0.62rem; }
+      .footer-instagram { font-size: 0.62rem; }
+      .footer-copy { font-size: 0.55rem; }
+    }
+
+    /* ── Fade-in ── */
+    .fi {
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.75s ease, transform 0.75s ease;
+    }
+    .fi.vis { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header class="site-header">
+  <a href="index.html" class="header-logo">
+    <img src="images/kawasoi_logo_vt_transparent.svg" alt="川添い">
+  </a>
+  <button class="hamburger" id="menuOpen" aria-label="メニューを開く">〜</button>
+</header>
+
+<!-- ══ NAV OVERLAY ══ -->
+<div class="nav-overlay" id="navOverlay" role="dialog" aria-modal="true">
+  <button class="nav-close" id="menuClose" aria-label="メニューを閉じる">〜</button>
+  <a href="index.html#statement" onclick="closeMenu()">趣旨</a>
+  <a href="tsushin.html"         onclick="closeMenu()">通信</a>
+  <a href="index.html#kikaku"    onclick="closeMenu()">企画</a>
+  <a href="index.html#store"     onclick="closeMenu()">購買</a>
+  <a href="index.html#shozai"    onclick="closeMenu()">所在</a>
+</div>
+
+<!-- ══ PAGE ══ -->
+<div class="page">
+
+  <!-- タイトルエリア -->
+  <div class="issue-header fi">
+    <p class="issue-number">第16号</p>
+    <p class="issue-date">2026.04.12</p>
+  </div>
+
+  <!-- 本文エリア -->
+  <div class="article-body">
+
+    <a href="tsushin.html" class="back-link fi">← 通信一覧に戻る</a>
+
+    <!-- セクション1 -->
+    <h2 class="section-heading fi">近況</h2>
+    <div class="body-text fi">
+      <p>春の終わりに、ある川のそばを歩いた。水面はおだやかで、光がやわらかく揺れていた。その日持っていた文庫本を土手に腰を下ろして開いたとき、ページの白さと川のひかりが、なぜかひとつのものに見えた。</p>
+      <p>店の窓から見える川も、この季節はすこし緑がかった色をしている。朝、シャッターを開けながらその流れを見るのが、最近の小さな楽しみになっている。</p>
+      <p>今月は新刊の入荷も多く、棚が少しにぎやかになった。選んだ本のことを、またここで書いていけたらと思っている。</p>
+    </div>
+
+    <!-- セクション2 -->
+    <h2 class="section-heading fi">近刊の紹介</h2>
+    <img src="images/kawasoi_sq_2.jpg" alt="近刊" class="book-image fi">
+    <div class="body-text fi">
+      <p>今月おすすめしたい一冊は、内田百閒の『冥途』です。夢と現の境界が溶けていくような短篇集で、百閒の文章の静謐な美しさをあらためて感じることができます。</p>
+      <p>読み始めると、どこか川の底を漂っているような感覚になります。春のおだやかな午後に、ぜひ手にとっていただきたい本です。店頭でもご覧いただけます。</p>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-left">
+        <p class="footer-shop-name">川添い</p>
+        <p class="footer-info">
+          〒010-1211<br>
+          秋田市雄和椿川字小鹿野戸1-18<br>
+          E-mail: post@kawasoi.com
+        </p>
+      </div>
+      <div class="footer-right">
+        <a href="https://www.instagram.com/" class="footer-instagram" target="_blank" rel="noopener noreferrer">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+            <circle cx="12" cy="12" r="4.5"/>
+            <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+          </svg>
+        </a>
+        <p class="footer-copy">© Kawasoi All Rights Reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+</div><!-- /page -->
+
+<script>
+  const overlay = document.getElementById('navOverlay');
+  document.getElementById('menuOpen').addEventListener('click', () => {
+    overlay.classList.add('open');
+  });
+  document.getElementById('menuClose').addEventListener('click', closeMenu);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeMenu(); });
+  function closeMenu() { overlay.classList.remove('open'); }
+
+  const io = new IntersectionObserver(
+    entries => entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('vis'); io.unobserve(e.target); }
+    }),
+    { threshold: 0.08, rootMargin: '0px 0px -20px 0px' }
+  );
+  document.querySelectorAll('.fi').forEach(el => io.observe(el));
+</script>
+
+</body>
+</html>

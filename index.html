@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>川添い — 本・菓子・喫茶・企画</title>
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+  <style>
+    * { font-weight: 700 !important; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:      #013d72;
+      --navy-mid:  rgba(1,61,114,0.55);
+      --navy-faint:rgba(1,61,114,0.14);
+    }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      font-family: "Yu Mincho", "游明朝", "YuMincho",
+                   "Hiragino Mincho ProN", "Hiragino Mincho Pro", serif;
+      font-weight: 700;
+      background: #fff;
+      color: var(--navy);
+      line-height: 2;
+      overflow-x: hidden;
+    }
+    h1, h2, h3, h4, h5, h6,
+    p, a, li, span, time, label, button, input, textarea {
+      font-weight: 700;
+    }
+
+    /* ── Header ── */
+    .site-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 200;
+      height: 116px;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.4rem;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+    }
+    .header-logo {
+      display: block;
+      text-decoration: none;
+    }
+    .header-logo img {
+      height: 100px;
+      width: auto;
+      display: block;
+    }
+    .hamburger {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: "Yu Mincho", "游明朝", serif;
+      font-size: 2rem;
+      color: #ADBFCE;
+      line-height: 1;
+      padding: 0 0.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── Nav Overlay ── */
+    .nav-overlay {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 100%;
+      height: 100vh;
+      z-index: 200;
+      background: rgba(255,255,255,0.97);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .nav-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .nav-overlay a {
+      text-decoration: none;
+      color: var(--navy);
+      font-size: 1.05rem;
+      letter-spacing: 0.45em;
+      transition: opacity 0.2s;
+    }
+    .nav-overlay a:hover { opacity: 0.5; }
+    .nav-close {
+      position: absolute;
+      top: 14px;
+      right: 1.4rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: "Yu Mincho", "游明朝", serif;
+      font-size: 1.5rem;
+      color: var(--navy);
+      line-height: 1;
+    }
+
+    /* ── Page wrapper ── */
+    .page {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    /* ── FV ── */
+    .sec-fv {
+      width: 100%;
+      min-height: 100vh;
+      background: #ffffff;
+      position: relative;
+      padding-top: 116px;
+      display: flex;
+      flex-direction: column;
+    }
+    .fv-mv-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.2rem 2rem;
+    }
+    .fv-mv {
+      width: auto;
+      max-height: 55vh;
+      object-fit: contain;
+      display: block;
+    }
+    @media (max-width: 540px) {
+      .fv-mv--sp { display: block; }
+      .fv-mv--pc { display: none; }
+    }
+    @media (min-width: 541px) {
+      .fv-mv--sp { display: none; }
+      .fv-mv--pc { display: block; }
+    }
+    .fv-news {
+      padding: 0.8rem 1.6rem 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8em;
+      overflow: hidden;
+      transition: opacity 0.8s ease;
+    }
+    .fv-news-label {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      color: var(--navy);
+      opacity: 0.7;
+      flex-shrink: 0;
+    }
+    .fv-news-ticker {
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      color: var(--navy);
+      opacity: 0.7;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-decoration: none;
+    }
+    .fv-news-sep {
+      opacity: 0.4;
+      margin: 0 0.3em;
+    }
+
+    /* ── Statement ── */
+    .sec-statement {
+      background: #ffffff;
+      position: relative;
+    }
+    .statement-body {
+      padding: 8%;
+      position: relative;
+      z-index: 1;
+    }
+    .statement-body p {
+      font-size: 14px;
+      line-height: 2.2;
+      color: var(--navy);
+      letter-spacing: 0.06em;
+      margin-bottom: 1.8em;
+      word-break: normal;
+      overflow-wrap: break-word;
+      white-space: normal;
+    }
+    .statement-body p:last-child {
+      margin-bottom: 0;
+    }
+    @media (min-width: 541px) {
+      .statement-body {
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        height: 80vh;
+        width: auto;
+        padding: 8%;
+        margin-bottom: -18vh;
+      }
+      .statement-body p {
+        margin-bottom: 0;
+        margin-left: 1.8em;
+        word-break: normal;
+        overflow-wrap: break-word;
+        white-space: normal;
+      }
+      .statement-body p:last-child {
+        margin-left: 0;
+      }
+    }
+    @media (max-width: 540px) {
+      .statement-body {
+        writing-mode: horizontal-tb;
+      }
+    }
+    .statement-overlay {
+      color: #ffffff;
+    }
+    .statement-img-wrapper {
+      position: relative;
+      margin-top: -12em;
+      z-index: 0;
+    }
+    .statement-img-wrapper::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: calc(50% - 50vw);
+      width: 100vw;
+      height: 20%;
+      background: linear-gradient(to bottom, #ffffff 0%, transparent 100%);
+      z-index: 1;
+      pointer-events: none;
+    }
+    .statement-photo {
+      display: block;
+      width: 100vw;
+      margin-left: calc(50% - 50vw);
+      height: 120vw;
+      object-fit: cover;
+      object-position: center center;
+    }
+    @media (min-width: 541px) {
+      .statement-photo {
+        height: 45vw;
+      }
+    }
+
+    /* ── Store ── */
+    .sec-store {
+      background: #D0E0EF;
+      width: 100vw;
+      margin-left: calc(50% - 50vw);
+      padding: 0;
+    }
+    .sec-store-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 3.6rem 1.6rem 3.6rem;
+    }
+    .store-label {
+      font-size: 1.45rem;
+      letter-spacing: 0.22em;
+      color: var(--navy);
+      font-weight: normal;
+      margin-bottom: 3.2rem;
+    }
+    .store-desc {
+      font-size: 0.88rem;
+      line-height: 2.3;
+      color: var(--navy);
+      letter-spacing: 0.06em;
+      margin-bottom: 3rem;
+      word-break: normal;
+      overflow-wrap: break-word;
+      white-space: normal;
+    }
+    .store-list {
+      list-style: none;
+      margin-bottom: 1.8rem;
+    }
+    .store-item {
+      display: flex;
+      align-items: baseline;
+      padding: 0.75rem 0;
+      font-size: 0.85rem;
+      letter-spacing: 0.06em;
+      color: var(--navy);
+      border-bottom: 1px solid rgba(1,61,114,0.12);
+    }
+    .store-item:first-child { border-top: 1px solid rgba(1,61,114,0.12); }
+    .store-item-name {
+      flex-shrink: 0;
+      width: 3.2em;
+    }
+    .store-item-dots {
+      flex: 1;
+      border-bottom: 1px dotted rgba(1,61,114,0.35);
+      margin: 0 0.6rem 0.25rem;
+      min-width: 1rem;
+    }
+    .store-item-note {
+      flex-shrink: 0;
+      font-size: 0.78rem;
+      color: var(--navy);
+      opacity: 0.75;
+      letter-spacing: 0.04em;
+    }
+    .store-detail-btn {
+      display: inline-block;
+      font-family: "Yu Mincho", "游明朝", serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.4em;
+      color: var(--navy);
+      text-decoration: none;
+      border: 1px solid rgba(1,61,114,0.45);
+      padding: 0.55rem 1.6rem;
+      margin-bottom: 0;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .store-detail-btn:hover {
+      background: rgba(1,61,114,0.06);
+      border-color: var(--navy);
+    }
+    .store-photo {
+      display: block;
+      width: 100vw;
+      margin-left: calc(-50vw + 50%);
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    /* ── Kikaku ── */
+    .sec-kikaku {
+      padding: 4rem 0 4.5rem;
+    }
+    .kikaku-label {
+      font-size: 1.45rem;
+      letter-spacing: 0.22em;
+      color: var(--navy);
+      font-weight: normal;
+      padding: 0 1.6rem;
+      margin-bottom: 3.2rem;
+    }
+    .kikaku-scroll {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      gap: 1rem;
+      padding-left: 1.6rem;
+      padding-right: 1.6rem;
+      scroll-padding-left: 1.6rem;
+      scrollbar-width: none;
+    }
+    .kikaku-scroll::-webkit-scrollbar { display: none; }
+    .kikaku-card {
+      flex-shrink: 0;
+      width: 70vw;
+      max-width: 280px;
+      scroll-snap-align: start;
+      text-decoration: none;
+      color: var(--navy);
+      overflow: hidden;
+      position: relative;
+    }
+    .kikaku-card::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      pointer-events: none;
+    }
+    .kikaku-card:hover::after {
+      animation: ripple-wave 1.8s ease-out infinite;
+    }
+    @keyframes ripple-wave {
+      0%   { width: 0; height: 0; opacity: 0.4; }
+      50%  { opacity: 0.15; }
+      100% { width: 300%; height: 300%; opacity: 0; }
+    }
+    .kikaku-card-img {
+      width: 100%;
+      aspect-ratio: 1080 / 1350;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      margin-bottom: 0.9rem;
+      box-shadow: 6px 8px 24px rgba(0, 62, 121, 0.2);
+    }
+    .kikaku-card:hover .kikaku-card-img {
+      animation: water-sway 2.4s ease-in-out infinite;
+    }
+    @keyframes water-sway {
+      0%   { transform: scale(1) skewX(0deg) skewY(0deg); }
+      25%  { transform: scale(1.015) skewX(0.6deg) skewY(0.3deg); }
+      50%  { transform: scale(1.02) skewX(-0.4deg) skewY(-0.2deg); }
+      75%  { transform: scale(1.015) skewX(0.3deg) skewY(0.2deg); }
+      100% { transform: scale(1) skewX(0deg) skewY(0deg); }
+    }
+    .kikaku-card-date {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      color: var(--navy-mid);
+      margin-bottom: 0.4rem;
+    }
+    .kikaku-card-title {
+      font-size: 0.88rem;
+      line-height: 1.75;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.2rem;
+    }
+    .kikaku-card-sub {
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      color: var(--navy-mid);
+    }
+
+    /* ── Tsushin ── */
+    .sec-tsushin {
+      background: #D0E0EF;
+      width: 100vw;
+      margin-left: calc(50% - 50vw);
+      padding: 0;
+      border-top: none;
+    }
+    .sec-tsushin-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 4.5rem 1.6rem 5rem;
+    }
+    .tsushin-heading {
+      font-size: 1.45rem;
+      letter-spacing: 0.22em;
+      color: var(--navy);
+      font-weight: normal;
+      margin-bottom: 3.2rem;
+    }
+    .tsushin-issue {
+      margin-bottom: 3.6rem;
+    }
+    .tsushin-issue-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.7em;
+      font-size: 1.2rem;
+      letter-spacing: 0.12em;
+      color: #003E79;
+      margin-bottom: 1.4rem;
+    }
+    .tsushin-issue-divider {
+      display: inline-block;
+      width: 1px;
+      height: 0.9em;
+      background: currentColor;
+      opacity: 0.5;
+      vertical-align: middle;
+      flex-shrink: 0;
+    }
+    .tsushin-issue-body {
+      font-size: 0.9rem;
+      line-height: 2.2;
+      color: rgba(0, 62, 121, 0.8);
+      letter-spacing: 0.05em;
+      margin-bottom: 0.6rem;
+      word-break: normal;
+      overflow-wrap: break-word;
+      white-space: normal;
+    }
+    .tsushin-card {
+      position: relative;
+      cursor: pointer;
+      padding-bottom: 2rem;
+      padding-left: 1.5rem;
+    }
+    .tsushin-card::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 1px;
+      height: 100%;
+      background: rgba(0, 62, 121, 0.15);
+    }
+    .tsushin-card::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 32px;
+      height: 1px;
+      background: rgba(1,61,114,0.15);
+    }
+    .page-curl {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(
+        135deg,
+        #b8cede 50%,
+        transparent 50%
+      );
+    }
+    .tsushin-backnumbers {
+      list-style: none;
+      border-top: 1px solid var(--navy-faint);
+      margin-bottom: 3rem;
+    }
+    .tsushin-back-item {
+      border-bottom: 1px solid var(--navy-faint);
+    }
+    .tsushin-back-link {
+      display: flex;
+      align-items: center;
+      gap: 0.7em;
+      padding: 1.1rem 0;
+      text-decoration: none;
+      font-size: 0.8rem;
+      letter-spacing: 0.12em;
+      color: var(--navy);
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+    .tsushin-back-link:hover { opacity: 1; }
+    .tsushin-sakoboru {
+      display: inline-block;
+      font-family: "Yu Mincho", "游明朝", serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.4em;
+      color: var(--navy);
+      text-decoration: none;
+      border: 1px solid rgba(1,61,114,0.45);
+      padding: 0.55rem 1.6rem;
+      float: right;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .tsushin-sakoboru:hover {
+      background: rgba(1,61,114,0.06);
+      border-color: var(--navy);
+    }
+
+    /* ── Shozai ── */
+    .sec-shozai {
+      padding: 4.5rem 1.6rem 5.5rem;
+      border-top: 1px solid var(--navy-faint);
+    }
+    .shozai-heading {
+      font-size: 1.45rem;
+      letter-spacing: 0.22em;
+      color: #003E79;
+      margin-bottom: 3.6rem;
+    }
+    .shozai-block {
+      margin-bottom: 3.2rem;
+    }
+    .shozai-block:last-child { margin-bottom: 0; }
+    .shozai-block-title {
+      font-size: 0.82rem;
+      letter-spacing: 0.18em;
+      color: #003E79;
+      margin-bottom: 1.2rem;
+    }
+    .shozai-transport-label {
+      font-size: 0.8rem;
+      letter-spacing: 0.12em;
+      color: rgba(0, 62, 121, 0.8);
+      margin-top: 1.8rem;
+      margin-bottom: 0.6rem;
+    }
+    .shozai-transport-label:first-of-type { margin-top: 0; }
+    .shozai-text {
+      font-size: 0.88rem;
+      line-height: 2.2;
+      color: rgba(0, 62, 121, 0.8);
+      letter-spacing: 0.04em;
+    }
+    .shozai-link {
+      color: #003E79;
+      text-decoration: underline;
+      text-underline-offset: 0.2em;
+      font-size: 0.82rem;
+      letter-spacing: 0.06em;
+    }
+    .shozai-link:hover { opacity: 0.6; }
+    .shozai-address-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .shozai-map {
+      width: 100%;
+      aspect-ratio: 4/3;
+      border: none;
+      display: block;
+    }
+    @media (min-width: 541px) {
+      .shozai-address-wrap {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 2rem;
+      }
+      .shozai-address-text { flex: 1; }
+      .shozai-map {
+        width: 320px;
+        flex-shrink: 0;
+        aspect-ratio: 4/3;
+      }
+    }
+
+    /* ── Footer ── */
+    footer {
+      background: #ffffff;
+      border-top: 1px solid rgba(1,61,114,0.15);
+      padding: 2.8rem 1.6rem;
+    }
+    .footer-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: stretch;
+      gap: 1.5rem;
+    }
+    .footer-shop-name {
+      font-size: 1.05rem;
+      letter-spacing: 0.2em;
+      color: var(--navy);
+      margin-bottom: 0.8rem;
+    }
+    .footer-info {
+      font-size: 0.7rem;
+      line-height: 2;
+      color: var(--navy);
+      letter-spacing: 0.04em;
+    }
+    .footer-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+    .footer-instagram {
+      display: flex;
+      align-items: center;
+      gap: 0.45em;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      color: var(--navy);
+      text-decoration: none;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    .footer-instagram:hover { opacity: 1; }
+    .footer-copy {
+      font-size: 0.6rem;
+      letter-spacing: 0.06em;
+      color: var(--navy);
+      opacity: 0.45;
+    }
+    @media (max-width: 400px) {
+      .footer-shop-name { font-size: 0.9rem; }
+      .footer-info { font-size: 0.62rem; }
+      .footer-instagram { font-size: 0.62rem; }
+      .footer-copy { font-size: 0.55rem; }
+    }
+
+    /* ── Fade-in ── */
+    .fi {
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.75s ease, transform 0.75s ease;
+    }
+    .fi.vis { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header class="site-header">
+  <a href="index.html" class="header-logo">
+    <img src="images/kawasoi_logo_vt_transparent.svg" alt="川添い">
+  </a>
+  <button class="hamburger" id="menuOpen" aria-label="メニューを開く">〜</button>
+</header>
+
+<!-- ══ NAV OVERLAY ══ -->
+<div class="nav-overlay" id="navOverlay" role="dialog" aria-modal="true">
+  <button class="nav-close" id="menuClose" aria-label="メニューを閉じる">〜</button>
+  <a href="#statement" onclick="closeMenu()">趣旨</a>
+  <a href="#tsushin"   onclick="closeMenu()">通信</a>
+  <a href="#kikaku"    onclick="closeMenu()">企画</a>
+  <a href="#store"     onclick="closeMenu()">購買</a>
+  <a href="#shozai"    onclick="closeMenu()">所在</a>
+</div>
+
+<!-- ══ PAGE ══ -->
+<div class="page">
+
+  <!-- ── FV ── -->
+  <section id="fv" class="sec-fv">
+    <div class="fv-mv-wrap">
+      <img src="images/kawasoi_mv_sp.jpg" alt="" class="fv-mv fv-mv--sp">
+      <img src="images/kawasoi_mv_pc.jpg" alt="" class="fv-mv fv-mv--pc">
+    </div>
+    <div class="fv-news">
+      <span class="fv-news-label">お知らせ</span>
+      <a href="news-detail.html" class="fv-news-ticker">2026. 5. 3<span class="fv-news-sep">｜</span>「本と商店街 2026」に出店します</a>
+    </div>
+  </section>
+
+  <!-- ── Statement ── -->
+  <section id="statement" class="sec-statement">
+    <div class="statement-body">
+      <p class="fi">だから、<br>
+        想いにじっくり耳を傾ける。<br>
+        ともに手を動かし、考える。<br>
+        何度も、何度でも挑戦する。</p>
+      <p class="fi">間の雑談だって大切です。</p>
+      <p class="fi">そうやって刷り上がる印刷物こそ、<br>
+        私たちにとって確かな意味があると思うのです。<br>
+        ともすると面倒くさい相手かもしれません。</p>
+      <p class="fi statement-overlay">でもやっぱり、<br>
+        私たちは会社である前に<br>
+        友人であり、家族でありたい。</p>
+      <p class="fi statement-overlay">それが高山活版社です。</p>
+    </div>
+    <div class="statement-img-wrapper fi">
+      <img src="images/omono-river.jpg" alt="" class="statement-photo">
+    </div>
+  </section>
+
+  <!-- ── Store ── -->
+  <section id="store" class="sec-store">
+    <div class="sec-store-inner">
+      <h2 class="store-label fi">店舗</h2>
+      <p class="store-desc fi">
+        市街地から少しばかり離れた、田んぼと山々のあいだ、川が寄り添うように流れる処に「川添い」は在ります。
+      </p>
+      <ul class="store-list">
+        <li class="store-item fi">
+          <span class="store-item-name">本</span>
+          <span class="store-item-dots"></span>
+          <span class="store-item-note">新刊・古書・文具の販売</span>
+        </li>
+        <li class="store-item fi">
+          <span class="store-item-name">菓子</span>
+          <span class="store-item-dots"></span>
+          <span class="store-item-note">焼き菓子の製造・販売</span>
+        </li>
+        <li class="store-item fi">
+          <span class="store-item-name">喫茶</span>
+          <span class="store-item-dots"></span>
+          <span class="store-item-note">読み聴き書く時空間と茶葉の提供</span>
+        </li>
+      </ul>
+      <a href="#" class="store-detail-btn fi">詳細</a>
+    </div>
+    <img src="images/kawasoi.jpg" alt="川添い" class="store-photo fi">
+  </section>
+
+  <!-- ── Kikaku ── -->
+  <section id="kikaku" class="sec-kikaku">
+    <h2 class="kikaku-label fi">企画</h2>
+    <div class="kikaku-scroll">
+      <a href="#" class="kikaku-card">
+        <img src="images/event _3.jpg" alt="春うららいぶ" class="kikaku-card-img">
+        <p class="kikaku-card-date">2026.04 ― 音楽</p>
+        <p class="kikaku-card-title">春うららいぶ</p>
+        <p class="kikaku-card-sub">by 黒崎平</p>
+      </a>
+      <a href="#" class="kikaku-card">
+        <img src="images/event _2.jpg" alt="三待あかり個展" class="kikaku-card-img">
+        <p class="kikaku-card-date">2025.12 ― 展示</p>
+        <p class="kikaku-card-title">三待あかり個展</p>
+        <p class="kikaku-card-sub">『絵日記綴り』</p>
+      </a>
+      <a href="#" class="kikaku-card">
+        <img src="images/event_4.jpg" alt="村上春樹のブッククラブ" class="kikaku-card-img">
+        <p class="kikaku-card-date">2025.10〜 ― 読書会</p>
+        <p class="kikaku-card-title">村上春樹のブッククラブ</p>
+        <p class="kikaku-card-sub">4期メンバー募集</p>
+      </a>
+      <a href="#" class="kikaku-card">
+        <img src="images/event _1.jpg" alt="物語と、印刷" class="kikaku-card-img">
+        <p class="kikaku-card-date">2025.03 ― トークイベント</p>
+        <p class="kikaku-card-title">物語と、印刷</p>
+        <p class="kikaku-card-sub">at 高山活版社</p>
+      </a>
+    </div>
+  </section>
+
+  <!-- ── Tsushin ── -->
+  <section id="tsushin" class="sec-tsushin">
+    <div class="sec-tsushin-inner">
+    <h2 class="tsushin-heading fi">通信</h2>
+
+    <!-- 最新号 -->
+    <div class="tsushin-issue tsushin-card fi" onclick="location.href='tsushin-detail.html'">
+      <p class="tsushin-issue-meta">
+        2026.04.12
+        <span class="tsushin-issue-divider"></span>
+        第16号
+      </p>
+      <p class="tsushin-issue-body">
+        春の終わりに、ある川のそばを歩いた。水面はおだやかで、光がやわらかく揺れていた。その日持っていた文庫本を土手に腰を下ろして開いたとき、ページの白さと川のひかりが、なぜかひとつのものに見えた。
+      </p>
+      <div class="page-curl"></div>
+    </div>
+
+    <!-- 2件目 -->
+    <div class="tsushin-issue tsushin-card fi" onclick="location.href='tsushin-detail.html'">
+      <p class="tsushin-issue-meta">
+        2026.03.08
+        <span class="tsushin-issue-divider"></span>
+        第15号
+      </p>
+      <div class="page-curl"></div>
+    </div>
+
+    <a href="tsushin.html" class="tsushin-sakoboru fi">遡る</a>
+    </div>
+  </section>
+
+  <!-- ── Shozai ── -->
+  <section id="shozai" class="sec-shozai">
+    <p class="shozai-heading fi">所在</p>
+
+    <!-- 住所 -->
+    <div class="shozai-block fi">
+      <p class="shozai-block-title">●住所</p>
+      <div class="shozai-address-wrap">
+        <div class="shozai-address-text">
+          <p class="shozai-text">
+            秋田市雄和椿川字小鹿野戸1-18<br>
+            <a href="https://maps.app.goo.gl/qtwe3m2zYciWjzzd7" class="shozai-link" target="_blank" rel="noopener noreferrer">Mapでみる</a>
+          </p>
+        </div>
+        <iframe
+          class="shozai-map"
+          src="https://www.google.com/maps?q=川添い+秋田市雄和椿川字小鹿野戸1-18&hl=ja&z=16&output=embed"
+          loading="lazy"
+          allowfullscreen
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+      </div>
+    </div>
+
+    <!-- アクセス -->
+    <div class="shozai-block fi">
+      <p class="shozai-block-title">●アクセス</p>
+
+      <p class="shozai-transport-label">［車］</p>
+      <p class="shozai-text">
+        秋田空港より15分、秋田駅より30分<br>
+        駐車場あり
+      </p>
+
+      <p class="shozai-transport-label">［電車とバス］</p>
+      <p class="shozai-text">
+        秋田駅から四ツ小屋駅までJR、<br>
+        そこからバスに乗り最寄りのバス停で下車<br>
+        └雄和Aコース：「川添郵便局前」から徒歩10分<br>
+        └雄和Bコース：「鹿野戸下村」から徒歩3分<br>
+        <a href="https://www.city.akita.lg.jp/_res/projects/default_project/_page_/001/007/533/yuuwa_r8.4.1.pdf" class="shozai-link" target="_blank" rel="noopener noreferrer">バスの詳細はこちら</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- ── Footer ── -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-left">
+        <p class="footer-shop-name">川添い</p>
+        <p class="footer-info">
+          〒010-1211<br>
+          秋田市雄和椿川字小鹿野戸1-18<br>
+          E-mail: post@kawasoi.com
+        </p>
+      </div>
+      <div class="footer-right">
+        <a href="https://www.instagram.com/" class="footer-instagram" target="_blank" rel="noopener noreferrer">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+            <circle cx="12" cy="12" r="4.5"/>
+            <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+          </svg>
+        </a>
+        <p class="footer-copy">© Kawasoi All Rights Reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+</div><!-- /page -->
+
+<script>
+  const overlay = document.getElementById('navOverlay');
+  document.getElementById('menuOpen').addEventListener('click', () => {
+    overlay.classList.add('open');
+  });
+  document.getElementById('menuClose').addEventListener('click', closeMenu);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeMenu(); });
+  function closeMenu() { overlay.classList.remove('open'); }
+
+  const io = new IntersectionObserver(
+    entries => entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('vis'); io.unobserve(e.target); }
+    }),
+    { threshold: 0.08, rootMargin: '0px 0px -20px 0px' }
+  );
+  document.querySelectorAll('.fi').forEach(el => io.observe(el));
+
+  // Header show/hide on scroll + mouse proximity
+  const siteHeader = document.querySelector('.site-header');
+  const fvSection = document.getElementById('fv');
+  let lastScrollY = window.scrollY;
+
+  window.addEventListener('scroll', () => {
+    const currentScrollY = window.scrollY;
+    const hidePoint = fvSection.offsetHeight - 80;
+
+    if (currentScrollY < hidePoint) {
+      siteHeader.style.opacity = '1';
+      siteHeader.style.visibility = 'visible';
+    } else if (currentScrollY < lastScrollY) {
+      siteHeader.style.opacity = '1';
+      siteHeader.style.visibility = 'visible';
+    } else {
+      siteHeader.style.opacity = '0';
+      siteHeader.style.visibility = 'hidden';
+    }
+    lastScrollY = currentScrollY;
+  }, { passive: true });
+
+  document.addEventListener('mousemove', e => {
+    if (e.clientY < 100) {
+      siteHeader.style.opacity = '1';
+      siteHeader.style.visibility = 'visible';
+    }
+  });
+
+  // News bar fade on scroll
+  const newsBar = document.querySelector('.fv-news');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > window.innerHeight * 0.5) {
+      newsBar.style.opacity = '0';
+    } else {
+      newsBar.style.opacity = '1';
+    }
+  }, { passive: true });
+</script>
+
+</body>
+</html>

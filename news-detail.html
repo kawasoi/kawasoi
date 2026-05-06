@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>「本と商店街 2026」に出店します — お知らせ | 川添い</title>
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+  <style>
+    * { font-weight: 700 !important; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:       #013d72;
+      --navy-mid:   rgba(1,61,114,0.55);
+      --navy-faint: rgba(1,61,114,0.14);
+    }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      font-family: "Yu Mincho", "游明朝", "YuMincho",
+                   "Hiragino Mincho ProN", "Hiragino Mincho Pro", serif;
+      font-weight: 700;
+      background: #ffffff;
+      color: var(--navy);
+      line-height: 2.2;
+      overflow-x: hidden;
+    }
+
+    /* ── Header ── */
+    .site-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 200;
+      height: 116px;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.4rem;
+    }
+    .header-logo { display: block; text-decoration: none; }
+    .header-logo img {
+      height: 100px;
+      width: auto;
+      display: block;
+    }
+    .hamburger {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: "Yu Mincho", "游明朝", serif;
+      font-size: 2rem;
+      color: #ADBFCE;
+      line-height: 1;
+      padding: 0 0.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── Nav Overlay ── */
+    .nav-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 190;
+      background: rgba(255,255,255,0.97);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .nav-overlay.open { opacity: 1; pointer-events: all; }
+    .nav-overlay a {
+      text-decoration: none;
+      color: var(--navy);
+      font-size: 1.05rem;
+      letter-spacing: 0.45em;
+      transition: opacity 0.2s;
+    }
+    .nav-overlay a:hover { opacity: 0.5; }
+    .nav-close {
+      position: absolute;
+      top: 14px;
+      right: 1.4rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: "Yu Mincho", "游明朝", serif;
+      font-size: 1.5rem;
+      color: var(--navy);
+      line-height: 1;
+    }
+
+    /* ── Page ── */
+    .page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding-top: 116px;
+    }
+
+    /* ── Title area ── */
+    .news-header {
+      text-align: center;
+      padding: 4rem 1.6rem 3rem;
+      border-bottom: 1px solid var(--navy-faint);
+      margin-bottom: 3rem;
+    }
+    .news-title {
+      font-size: 1.15rem;
+      letter-spacing: 0.12em;
+      color: var(--navy);
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+    .news-date {
+      font-size: 0.78rem;
+      letter-spacing: 0.2em;
+      color: var(--navy);
+      opacity: 0.55;
+    }
+
+    /* ── Body area ── */
+    .article-body {
+      padding: 0 8% 6rem;
+    }
+    .back-link {
+      display: inline-block;
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      color: var(--navy);
+      opacity: 0.45;
+      text-decoration: none;
+      margin-bottom: 3rem;
+      transition: opacity 0.2s;
+    }
+    .back-link:hover { opacity: 0.9; }
+
+    .body-text {
+      font-size: 0.93rem;
+      line-height: 2.2;
+      color: #003E79;
+      letter-spacing: 0.04em;
+    }
+    .body-text p {
+      text-indent: 1em;
+      margin-bottom: 2.2em;
+      word-break: normal;
+      overflow-wrap: break-word;
+    }
+    .body-text p:last-child { margin-bottom: 0; }
+
+    /* ── Footer ── */
+    footer {
+      background: #ffffff;
+      border-top: 1px solid rgba(1,61,114,0.15);
+      padding: 2.8rem 1.6rem;
+    }
+    .footer-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: stretch;
+      gap: 1.5rem;
+    }
+    .footer-shop-name {
+      font-size: 1.05rem;
+      letter-spacing: 0.2em;
+      color: var(--navy);
+      margin-bottom: 0.8rem;
+    }
+    .footer-info {
+      font-size: 0.7rem;
+      line-height: 2;
+      color: var(--navy);
+      letter-spacing: 0.04em;
+    }
+    .footer-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+    .footer-instagram {
+      display: flex;
+      align-items: center;
+      gap: 0.45em;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      color: var(--navy);
+      text-decoration: none;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    .footer-instagram:hover { opacity: 1; }
+    .footer-copy {
+      font-size: 0.6rem;
+      letter-spacing: 0.06em;
+      color: var(--navy);
+      opacity: 0.45;
+    }
+    @media (max-width: 400px) {
+      .footer-shop-name { font-size: 0.9rem; }
+      .footer-info { font-size: 0.62rem; }
+      .footer-instagram { font-size: 0.62rem; }
+      .footer-copy { font-size: 0.55rem; }
+    }
+
+    /* ── Fade-in ── */
+    .fi {
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.75s ease, transform 0.75s ease;
+    }
+    .fi.vis { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header class="site-header">
+  <a href="index.html" class="header-logo">
+    <img src="images/kawasoi_logo_vt_transparent.svg" alt="川添い">
+  </a>
+  <button class="hamburger" id="menuOpen" aria-label="メニューを開く">〜</button>
+</header>
+
+<!-- ══ NAV OVERLAY ══ -->
+<div class="nav-overlay" id="navOverlay" role="dialog" aria-modal="true">
+  <button class="nav-close" id="menuClose" aria-label="メニューを閉じる">〜</button>
+  <a href="index.html#statement" onclick="closeMenu()">趣旨</a>
+  <a href="tsushin.html"         onclick="closeMenu()">通信</a>
+  <a href="index.html#kikaku"    onclick="closeMenu()">企画</a>
+  <a href="index.html#store"     onclick="closeMenu()">購買</a>
+  <a href="index.html#shozai"    onclick="closeMenu()">所在</a>
+</div>
+
+<!-- ══ PAGE ══ -->
+<div class="page">
+
+  <!-- タイトルエリア -->
+  <div class="news-header fi">
+    <p class="news-title">「本と商店街 2026」に出店します</p>
+    <p class="news-date">2026.05.03</p>
+  </div>
+
+  <!-- 本文エリア -->
+  <div class="article-body">
+
+    <a href="index.html" class="back-link fi">← お知らせ一覧に戻る</a>
+
+    <div class="body-text fi">
+      <p>今年も「本と商店街 2026」に出店することになりました。毎年この時期に開かれる、本屋と商店街が一体になったイベントで、川添いとしては三度目の参加となります。</p>
+      <p>今回は選書のテーマを「川と時間」に絞り、川にまつわる小説・詩集・随筆を中心に棚をつくる予定です。川辺の午後にゆっくり読みたくなるような本を、丁寧に選んでお持ちします。</p>
+      <p>会期中は店主も会場におりますので、本のことや店のことなど、気軽にお声がけください。詳しい日程や会場については、随時インスタグラムにてお知らせします。</p>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-left">
+        <p class="footer-shop-name">川添い</p>
+        <p class="footer-info">
+          〒010-1211<br>
+          秋田市雄和椿川字小鹿野戸1-18<br>
+          E-mail: post@kawasoi.com
+        </p>
+      </div>
+      <div class="footer-right">
+        <a href="https://www.instagram.com/" class="footer-instagram" target="_blank" rel="noopener noreferrer">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+            <circle cx="12" cy="12" r="4.5"/>
+            <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+          </svg>
+        </a>
+        <p class="footer-copy">© Kawasoi All Rights Reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+</div><!-- /page -->
+
+<script>
+  const overlay = document.getElementById('navOverlay');
+  document.getElementById('menuOpen').addEventListener('click', () => {
+    overlay.classList.add('open');
+  });
+  document.getElementById('menuClose').addEventListener('click', closeMenu);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeMenu(); });
+  function closeMenu() { overlay.classList.remove('open'); }
+
+  const io = new IntersectionObserver(
+    entries => entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('vis'); io.unobserve(e.target); }
+    }),
+    { threshold: 0.08, rootMargin: '0px 0px -20px 0px' }
+  );
+  document.querySelectorAll('.fi').forEach(el => io.observe(el));
+</script>
+
+</body>
+</html>
