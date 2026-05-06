@@ -47,7 +47,7 @@ module.exports = async function handler(req, res) {
         const blocks = await blocksRes.json();
         const firstParagraph = (blocks.results || []).find(b => b.type === 'paragraph');
         const excerpt = firstParagraph
-          ? (firstParagraph.paragraph.rich_text || []).map(t => t.plain_text).join('')
+          ? (firstParagraph.paragraph.rich_text || []).map(t => t.plain_text).join('').replace(/\n/g, '<br>')
           : '';
         return { ...page, excerpt };
       })
