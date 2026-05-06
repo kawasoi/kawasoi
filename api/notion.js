@@ -36,7 +36,24 @@ module.exports = async function handler(req, res) {
       }),
     });
     const data = await dbRes.json();
-    return res.status(200).json(data);
+
+    // 各ページのブロックを並列取得し、最初のparagraphをexcerptとして付与
+    const results = await Promise.all(
+      (data.results || []).map(async (page) => {
+        const blocksRes = await fetch(
+          `https://api.notion.com/v1/blocks/${page.id}/children?page_size=10`,
+          { headers: notionHeaders }
+        );
+        const blocks = await blocksRes.json();
+        const firstParagraph = (blocks.results || []).find(b => b.type === 'paragraph');
+        const excerpt = firstParagraph
+          ? (firstParagraph.paragraph.rich_text || []).map(t => t.plain_text).join('')
+          : '';
+        return { ...page, excerpt };
+      })
+    );
+
+    return res.status(200).json({ ...data, results });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }

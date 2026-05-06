@@ -354,7 +354,7 @@
         const props = page.properties || {};
         const issueNum = getPropText(props['号数']);
         const dateStr = formatDate(props['発行日']?.date?.start || '');
-        const bodyText = getPropText(props['本文']);
+        const bodyText = page.excerpt || '';
         const excerpt = bodyText.length > 100 ? bodyText.slice(0, 100) + '…' : bodyText;
 
         const li = document.createElement('li');
