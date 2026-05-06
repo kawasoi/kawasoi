@@ -20,12 +20,19 @@ module.exports = async function handler(req, res) {
 
   function processBlocks(blocks) {
     return blocks.map(block => {
-      if (block.type !== 'paragraph') return block;
-      const rt = (block.paragraph.rich_text || []).map(t => ({
-        ...t,
-        plain_text: t.plain_text.replace(/\n/g, '<br>'),
-      }));
-      return { ...block, paragraph: { ...block.paragraph, rich_text: rt } };
+      if (block.type === 'paragraph') {
+        const rt = (block.paragraph.rich_text || []).map(t => ({
+          ...t,
+          plain_text: t.plain_text.replace(/\n/g, '<br>'),
+        }));
+        return { ...block, paragraph: { ...block.paragraph, rich_text: rt } };
+      }
+      if (block.type === 'image') {
+        const img = block.image;
+        const url = img.type === 'file' ? img.file.url : (img.external?.url || '');
+        return { ...block, imageUrl: url };
+      }
+      return block;
     });
   }
 
