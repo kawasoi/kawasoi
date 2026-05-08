@@ -48,12 +48,11 @@
     /* ── TOP (上半分：アイコン / 下半分：写真) ── */
     .top-icon {
       width: 100%;
-      aspect-ratio: 1 / 1;
       background: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 4rem;
+      padding: 2rem 4rem;
     }
     .top-icon img {
       width: 38%;
@@ -72,6 +71,27 @@
       height: 100%;
       object-fit: cover;
       display: block;
+    }
+
+    /* ── 写真とテキストの重なり ── */
+    .top-photo + .section {
+      position: relative;
+      z-index: 1;
+      background: #fff;
+      margin-top: -3rem;
+      padding-top: 3.5rem;
+    }
+
+    /* ── Responsive: 小型スマホ ── */
+    @media (max-width: 374px) {
+      .top-icon { padding: 1.5rem 2.5rem; }
+      .top-photo + .section { margin-top: -2rem; padding-top: 2.5rem; }
+    }
+
+    /* ── Responsive: タブレット以上 ── */
+    @media (min-width: 600px) {
+      .top-icon { padding: 2.5rem 5rem; }
+      .top-photo + .section { margin-top: -4rem; padding-top: 4rem; }
     }
 
     /* ── Section base ── */
@@ -254,24 +274,25 @@
   <!-- ── Body text ── -->
   <section class="section">
     <div class="body-text">
+      <p>水には記憶があるらしい</p>
       <p>
-        だから、<br>
-        思いにじっくり耳を傾ける。<br>
-        ともに手を動かし、考える。<br>
-        何度も、何度でも複演する。
-      </p>
-      <p>間の被読だって大切です。</p>
-      <p>
-        そうやって織り上がる印刷物こそ、<br>
-        私たちにとって繊細な意味があると思うのです。<br>
-        ともすると面倒くさい相手かもしれません。
+        幼い頃、川で遊んでいた<br>
+        私の足を濡らしたあの子も
       </p>
       <p>
-        でもやっぱり、<br>
-        私たちは会社である前に<br>
-        友人であり、家族でありたい。
+        春の夕方、一瞬、<br>
+        私たちに降りそそぐ<br>
+        虹をみせたあの子も
       </p>
-      <p>それが高山活版社です。</p>
+      <p>
+        あの日、<br>
+        君の頬を濡らしたあの子も
+      </p>
+      <p>
+        わたしは、一滴として、<br>
+        きちんとこの世界を流れているのだろうか。
+      </p>
+      <p>川は今日も、のっぷりと流れる。</p>
     </div>
   </section>
 
