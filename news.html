@@ -112,80 +112,65 @@
       padding-top: 116px;
     }
 
-    /* ── Title area ── */
-    .news-header {
+    /* ── Heading ── */
+    .news-page-heading {
       text-align: center;
-      padding: 4rem 1.6rem 3rem;
-      border-bottom: 1px solid var(--navy-faint);
-      margin-bottom: 3rem;
-    }
-    .news-category {
-      font-size: 0.68rem;
-      letter-spacing: 0.35em;
+      font-size: 1.45rem;
+      letter-spacing: 0.22em;
       color: var(--navy);
-      opacity: 0.5;
-      margin-bottom: 1.2rem;
-    }
-    .news-title {
-      font-size: 1.3rem;
-      letter-spacing: 0.12em;
-      color: var(--navy);
-      line-height: 1.8;
-      margin-bottom: 1rem;
-    }
-    .news-date {
-      font-size: 0.78rem;
-      letter-spacing: 0.2em;
-      color: var(--navy);
-      opacity: 0.55;
+      font-weight: 700;
+      padding: 3.5rem 0 3rem;
     }
 
-    /* ── Body area ── */
-    .article-body {
-      padding: 0 8% 6rem;
+    /* ── Article list ── */
+    .article-list {
+      list-style: none;
+      padding: 0 1.6rem;
     }
-    .back-link {
-      display: inline-block;
-      font-size: 0.72rem;
-      letter-spacing: 0.15em;
-      color: var(--navy);
-      opacity: 0.45;
-      text-decoration: none;
-      margin-bottom: 3rem;
+    .article-item {
+      border-bottom: 1px solid rgba(1,61,114,0.15);
+      padding: 2rem 0;
+      cursor: pointer;
       transition: opacity 0.2s;
     }
-    .back-link:hover { opacity: 0.9; }
+    .article-item:first-child {
+      border-top: 1px solid rgba(1,61,114,0.15);
+    }
+    .article-item:hover { opacity: 0.6; }
 
-    .section-heading {
-      font-size: 1rem;
+    .article-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.6em;
+      font-family: "Yu Mincho", "游明朝", "YuMincho",
+                   "Hiragino Mincho ProN", "Hiragino Mincho Pro", serif;
+      font-size: 0.75rem;
       letter-spacing: 0.12em;
       color: var(--navy);
-      padding-bottom: 0.7rem;
-      border-bottom: 1px solid var(--navy-faint);
-      margin-bottom: 2rem;
-      scroll-margin-top: 130px;
+      opacity: 0.55;
+      margin-bottom: 0.7rem;
     }
-
-    .body-text {
-      font-size: 0.93rem;
-      line-height: 2.2;
+    .article-meta-divider {
+      display: inline-block;
+      width: 1px;
+      height: 0.85em;
+      background: currentColor;
+      opacity: 0.5;
+      flex-shrink: 0;
+    }
+    .article-title {
+      font-size: 0.95rem;
+      letter-spacing: 0.08em;
       color: var(--navy);
-      letter-spacing: 0.04em;
-      margin-bottom: 5rem;
+      line-height: 1.85;
     }
-    .body-text p {
-      text-indent: 1em;
-      margin-bottom: 2.2em;
-      word-break: normal;
-      overflow-wrap: break-word;
-    }
-    .body-text p:last-child { margin-bottom: 0; }
 
     /* ── Footer ── */
     footer {
       background: #ffffff;
       border-top: 1px solid rgba(1,61,114,0.15);
       padding: 2.8rem 1.6rem;
+      margin-top: 4rem;
     }
     .footer-inner {
       max-width: 720px;
@@ -270,20 +255,12 @@
 <!-- ══ PAGE ══ -->
 <div class="page">
 
-  <!-- タイトルエリア -->
-  <div class="news-header fi" id="newsHeader">
-    <p class="news-category" id="newsCategory"></p>
-    <p class="news-title" id="newsTitle">読み込み中...</p>
-    <p class="news-date" id="newsDate"></p>
-  </div>
+  <h1 class="news-page-heading fi">お知らせ</h1>
 
-  <!-- 本文エリア -->
-  <div class="article-body">
-    <a href="news.html" class="back-link fi">← お知らせ一覧に戻る</a>
-    <div id="articleContent"></div>
-  </div>
+  <ul class="article-list" id="articleList">
+    <li class="article-item" id="loadingItem" style="text-align:center;opacity:0.5;font-size:0.85rem;letter-spacing:0.1em;border-top:1px solid rgba(1,61,114,0.15);">読み込み中...</li>
+  </ul>
 
-  <!-- Footer -->
   <footer>
     <div class="footer-inner">
       <div class="footer-left">
@@ -326,85 +303,45 @@
   );
   document.querySelectorAll('.fi').forEach(el => io.observe(el));
 
-  function formatDate(str) {
-    return str ? str.replace(/-/g, '.') : '';
-  }
-
-  function blocksToHtml(blocks) {
-    let html = '';
-    let bodyBuf = [];
-
-    function flushBody() {
-      if (bodyBuf.length === 0) return;
-      html += `<div class="body-text fi">${bodyBuf.join('')}</div>`;
-      bodyBuf = [];
-    }
-
-    blocks.forEach(block => {
-      const type = block.type;
-      const rt = (block[type]?.rich_text || []).map(t => t.plain_text).join('');
-
-      if (type === 'heading_1' || type === 'heading_2' || type === 'heading_3') {
-        flushBody();
-        html += `<h2 class="section-heading fi" id="${block.id}">${rt}</h2>`;
-      } else if (type === 'paragraph') {
-        if (rt) bodyBuf.push(`<p>${rt}</p>`);
-      } else if (type === 'bulleted_list_item' || type === 'numbered_list_item') {
-        if (rt) bodyBuf.push(`<p>・${rt}</p>`);
-      } else if (type === 'image' && block.imageUrl) {
-        flushBody();
-        html += `<img src="${block.imageUrl}" alt="" class="fi" style="width:100%;display:block;margin:2rem 0;">`;
-      }
-    });
-
-    flushBody();
-    return html;
-  }
-
-  async function loadArticle() {
-    const params = new URLSearchParams(location.search);
-    const id = params.get('id');
-
-    if (!id) {
-      document.getElementById('newsTitle').textContent = '記事が見つかりません';
-      return;
-    }
-
+  async function loadNews() {
+    const list = document.getElementById('articleList');
     try {
-      const res = await fetch(`/api/notion?type=news&id=${encodeURIComponent(id)}`);
+      const res = await fetch('/api/notion?type=news');
       const data = await res.json();
+      const pages = data.results || [];
 
-      const props = data.page?.properties || {};
-      const category = props['カテゴリ']?.select?.name || '';
-      const dateStr = formatDate(props['日付']?.date?.start || '');
-      const title = (props['タイトル']?.title || []).map(t => t.plain_text).join('');
-      const bodyProp = (props['本文']?.rich_text || []).map(t => t.plain_text).join('');
+      list.innerHTML = '';
+      pages.forEach(page => {
+        const props = page.properties || {};
+        const category = props['カテゴリ']?.select?.name || '';
+        const dateStr = (props['日付']?.date?.start || '').replace(/-/g, '.');
+        const title = (props['タイトル']?.title || []).map(t => t.plain_text).join('');
 
-      document.getElementById('newsCategory').textContent = category;
-      document.getElementById('newsDate').textContent = dateStr;
-      document.getElementById('newsTitle').textContent = title || 'お知らせ';
-      if (title) document.title = `${title} — お知らせ | 川添い`;
+        const li = document.createElement('li');
+        li.className = 'article-item fi';
+        li.addEventListener('click', () => {
+          location.href = `news-detail.html?id=${page.id}`;
+        });
+        li.innerHTML = `
+          <p class="article-meta">
+            ${dateStr}${dateStr && category ? '<span class="article-meta-divider"></span>' : ''}${category}
+          </p>
+          <p class="article-title">${title}</p>
+        `;
+        list.appendChild(li);
+      });
 
-      const content = document.getElementById('articleContent');
-      const blocks = data.blocks || [];
-
-      // rich_textプロパティの本文があれば優先、なければブロックを使用
-      if (bodyProp) {
-        const paras = bodyProp.split(/\n+/).filter(Boolean);
-        content.innerHTML = `<div class="body-text fi">${paras.map(p => `<p>${p}</p>`).join('')}</div>`;
-      } else if (blocks.length > 0) {
-        content.innerHTML = blocksToHtml(blocks);
-      } else {
-        content.innerHTML = '<div class="body-text fi"><p>本文がありません。</p></div>';
+      if (pages.length === 0) {
+        list.innerHTML = '<li class="article-item" style="text-align:center;opacity:0.5;border-top:1px solid rgba(1,61,114,0.15);">お知らせはありません。</li>';
       }
 
-      content.querySelectorAll('.fi').forEach(el => io.observe(el));
+      list.querySelectorAll('.fi').forEach(el => io.observe(el));
     } catch (e) {
-      document.getElementById('newsTitle').textContent = '記事の取得に失敗しました';
+      list.innerHTML = '<li class="article-item" style="text-align:center;opacity:0.5;border-top:1px solid rgba(1,61,114,0.15);">取得に失敗しました。</li>';
     }
   }
 
-  loadArticle();
+  loadNews();
 </script>
 
 </body>
