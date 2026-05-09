@@ -18,21 +18,30 @@ module.exports = async function handler(req, res) {
 
   const pageId = req.query.id;
 
+  function processRichText(richText) {
+    return (richText || []).map(t => ({
+      ...t,
+      plain_text: (t.plain_text || '').replace(/\n/g, '<br>'),
+    }));
+  }
+
   function processBlocks(blocks) {
     return blocks.map(block => {
       if (block.type === 'paragraph') {
-        const rt = (block.paragraph.rich_text || []).map(t => ({
-          ...t,
-          plain_text: t.plain_text.replace(/\n/g, '<br>'),
-        }));
-        return { ...block, paragraph: { ...block.paragraph, rich_text: rt } };
+        return { ...block, paragraph: { ...block.paragraph, rich_text: processRichText(block.paragraph.rich_text) } };
       }
       if (block.type === 'quote') {
-        const rt = (block.quote?.rich_text || []).map(t => ({
-          ...t,
-          plain_text: (t.plain_text || '').replace(/\n/g, '<br>'),
-        }));
-        return { ...block, quote: { ...(block.quote || {}), rich_text: rt } };
+        const quoteChildren = (block.quoteChildren || []).map(c => {
+          if (c.type === 'paragraph') {
+            return { ...c, paragraph: { ...c.paragraph, rich_text: processRichText(c.paragraph?.rich_text) } };
+          }
+          return c;
+        });
+        return {
+          ...block,
+          quote: { ...(block.quote || {}), rich_text: processRichText(block.quote?.rich_text) },
+          quoteChildren,
+        };
       }
       if (block.type === 'image') {
         const img = block.image;
@@ -43,7 +52,7 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  // quoteブロックのhas_childrenがtrueの場合、子ブロックをフラット化して展開する
+  // quoteブロックの子ブロックをquoteChildrenとして付与し、blockquote内でまとめてレンダリングできるようにする
   async function fetchBlocksFlat(blockId) {
     const r = await fetch(
       `https://api.notion.com/v1/blocks/${blockId}/children?page_size=100`,
@@ -54,14 +63,15 @@ module.exports = async function handler(req, res) {
 
     const flat = [];
     for (const block of blocks) {
-      flat.push(block);
       if (block.has_children && block.type === 'quote') {
         const cr = await fetch(
           `https://api.notion.com/v1/blocks/${block.id}/children?page_size=100`,
           { headers: notionHeaders }
         );
         const cd = await cr.json();
-        flat.push(...(cd.results ?? []));
+        flat.push({ ...block, quoteChildren: cd.results ?? [] });
+      } else {
+        flat.push(block);
       }
     }
     return flat;

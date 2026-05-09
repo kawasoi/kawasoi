@@ -363,7 +363,12 @@
         if (rt) bodyBuf.push(`<p>・${rt}</p>`);
       } else if (type === 'quote') {
         flushBody();
-        if (rt) html += `<blockquote class="notion-quote fi">${rt}</blockquote>`;
+        const childHtml = (block.quoteChildren || []).map(c => {
+          const crt = (c[c.type]?.rich_text || []).map(t => t.plain_text).join('');
+          return crt ? `<p>${crt}</p>` : '';
+        }).join('');
+        const quoteContent = (rt ? `<p>${rt}</p>` : '') + childHtml;
+        if (quoteContent) html += `<blockquote class="notion-quote fi">${quoteContent}</blockquote>`;
       } else if (type === 'image' && block.imageUrl) {
         flushBody();
         html += `<img src="${block.imageUrl}" alt="" class="fi" style="width:100%;display:block;margin:2rem 0;">`;
