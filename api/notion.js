@@ -34,16 +34,19 @@ module.exports = async function handler(req, res) {
         return { ...block, paragraph: { ...block.paragraph, rich_text: processRichText(block.paragraph.rich_text) } };
       }
       if (block.type === 'quote') {
-        const quoteChildren = (block.quoteChildren || []).map(c => {
+        const mainRt = processRichText(block.quote?.rich_text);
+        const mainText = mainRt.map(t => t.plain_text).join('');
+        const childTexts = (block.quoteChildren || []).map(c => {
           if (c.type === 'paragraph') {
-            return { ...c, paragraph: { ...c.paragraph, rich_text: processRichText(c.paragraph?.rich_text) } };
+            return processRichText(c.paragraph?.rich_text).map(t => t.plain_text).join('');
           }
-          return c;
-        });
+          return '';
+        }).filter(Boolean);
+        const quoteHtml = [mainText, ...childTexts].filter(Boolean).join('<br>');
         return {
           ...block,
-          quote: { ...(block.quote || {}), rich_text: processRichText(block.quote?.rich_text) },
-          quoteChildren,
+          quote: { ...(block.quote || {}), rich_text: mainRt },
+          quoteHtml,
         };
       }
       if (block.type === 'image') {
