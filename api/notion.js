@@ -37,6 +37,24 @@ module.exports = async function handler(req, res) {
   }
 
   try {
+    // ── ニュース一覧 ──
+    if (req.query.type === 'news') {
+      const newsDbId = process.env.NOTION_NEWS_DB_ID;
+      if (!newsDbId) return res.status(500).json({ error: 'NOTION_NEWS_DB_ID is not set' });
+
+      const limit = req.query.limit ? parseInt(req.query.limit, 10) : undefined;
+      const dbRes = await fetch(`https://api.notion.com/v1/databases/${newsDbId}/query`, {
+        method: 'POST',
+        headers: notionHeaders,
+        body: JSON.stringify({
+          sorts: [{ property: '日付', direction: 'descending' }],
+          ...(limit ? { page_size: limit } : {}),
+        }),
+      });
+      const data = await dbRes.json();
+      return res.status(200).json(data);
+    }
+
     if (pageId) {
       const [pageRes, blocksRes] = await Promise.all([
         fetch(`https://api.notion.com/v1/pages/${pageId}`, { headers: notionHeaders }),

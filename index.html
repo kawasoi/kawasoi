@@ -712,7 +712,7 @@
       <img src="images/kawasoi_mv_pc.jpg" alt="" class="fv-mv fv-mv--pc">
     </div>
     <div class="fv-news">
-      <a href="news-detail.html" class="fv-news-ticker">新着｜2026.5.3｜「本と商店街 2026」に出店します</a>
+      <a href="news-detail.html" class="fv-news-ticker" id="newsTicker">新着｜2026.5.3｜「本と商店街 2026」に出店します</a>
     </div>
   </section>
 
@@ -965,6 +965,31 @@
   }
 
   loadTsushin();
+
+  // ニュースバー：Notionから最新1件を取得
+  async function loadNews() {
+    try {
+      const res = await fetch('/api/notion?type=news&limit=1');
+      const data = await res.json();
+      const item = (data.results || [])[0];
+      if (!item) return;
+
+      const props = item.properties || {};
+      const category = props['カテゴリ']?.select?.name || '';
+      const date = (props['日付']?.date?.start || '').replace(/-/g, '.');
+      const title = (props['タイトル']?.title || []).map(t => t.plain_text).join('');
+
+      const ticker = document.getElementById('newsTicker');
+      if (ticker) {
+        ticker.textContent = [category, date, title].filter(Boolean).join('｜');
+        ticker.href = `news-detail.html?id=${item.id}`;
+      }
+    } catch (e) {
+      // 取得失敗時は静的フォールバックをそのまま表示
+    }
+  }
+
+  loadNews();
 
   // News bar fade on scroll
   const newsBar = document.querySelector('.fv-news');
