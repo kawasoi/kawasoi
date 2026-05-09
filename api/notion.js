@@ -42,7 +42,7 @@ module.exports = async function handler(req, res) {
           }
           return '';
         }).filter(Boolean);
-        const quoteHtml = [mainText, ...childTexts].filter(Boolean).join('<br>');
+        const quoteHtml = [mainText, ...childTexts].filter(Boolean).join('<br><br>');
         return {
           ...block,
           quote: { ...(block.quote || {}), rich_text: mainRt },
