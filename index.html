@@ -151,34 +151,19 @@
       .fv-mv--pc { display: block; }
     }
     .fv-news {
-      padding: 0.8rem 1.6rem 1.2rem;
-      display: flex;
-      align-items: center;
-      gap: 0.8em;
-      overflow: hidden;
+      width: 100%;
+      background-color: #C8DFE8;
+      padding: 10px 20px;
+      text-align: center;
       transition: opacity 0.8s ease;
-    }
-    .fv-news-label {
-      font-size: 11px;
-      letter-spacing: 0.18em;
-      color: var(--navy);
-      opacity: 0.7;
-      flex-shrink: 0;
     }
     .fv-news-ticker {
       font-size: 11px;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.08em;
       color: var(--navy);
-      opacity: 0.7;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
       text-decoration: none;
     }
-    .fv-news-sep {
-      opacity: 0.4;
-      margin: 0 0.3em;
-    }
+    .fv-news-ticker:hover { opacity: 0.7; }
 
     /* ── Statement ── */
     .sec-statement {
@@ -727,8 +712,7 @@
       <img src="images/kawasoi_mv_pc.jpg" alt="" class="fv-mv fv-mv--pc">
     </div>
     <div class="fv-news">
-      <span class="fv-news-label">お知らせ</span>
-      <a href="news-detail.html" class="fv-news-ticker">2026. 5. 3<span class="fv-news-sep">｜</span>「本と商店街 2026」に出店します</a>
+      <a href="news-detail.html" class="fv-news-ticker">新着｜2026.5.3｜「本と商店街 2026」に出店します</a>
     </div>
   </section>
 
