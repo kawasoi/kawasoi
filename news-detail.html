@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>「本と商店街 2026」に出店します — お知らせ | 川添い</title>
+  <title>お知らせ | 川添い</title>
   <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
   <style>
     * { font-weight: 700 !important; }
@@ -41,26 +41,32 @@
       align-items: center;
       justify-content: space-between;
       padding: 0 1.4rem;
+      transition: background-color 0.3s ease;
     }
+    .site-header:hover { background-color: #D0E0EF; }
     .header-logo { display: block; text-decoration: none; }
     .header-logo img {
       height: 100px;
       width: auto;
       display: block;
+      transition: opacity 0.3s ease;
     }
+    .site-header:hover .header-logo img { opacity: 0.3; }
     .hamburger {
       background: none;
       border: none;
       cursor: pointer;
       font-family: "Yu Mincho", "游明朝", serif;
       font-size: 2rem;
-      color: #ADBFCE;
+      color: var(--navy);
       line-height: 1;
       padding: 0 0.2rem;
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: color 0.3s ease;
     }
+    .site-header:hover .hamburger { color: var(--navy); }
 
     /* ── Nav Overlay ── */
     .nav-overlay {
@@ -113,8 +119,15 @@
       border-bottom: 1px solid var(--navy-faint);
       margin-bottom: 3rem;
     }
+    .news-category {
+      font-size: 0.68rem;
+      letter-spacing: 0.35em;
+      color: var(--navy);
+      opacity: 0.5;
+      margin-bottom: 1.2rem;
+    }
     .news-title {
-      font-size: 1.15rem;
+      font-size: 1.3rem;
       letter-spacing: 0.12em;
       color: var(--navy);
       line-height: 1.8;
@@ -143,11 +156,22 @@
     }
     .back-link:hover { opacity: 0.9; }
 
+    .section-heading {
+      font-size: 1rem;
+      letter-spacing: 0.12em;
+      color: var(--navy);
+      padding-bottom: 0.7rem;
+      border-bottom: 1px solid var(--navy-faint);
+      margin-bottom: 2rem;
+      scroll-margin-top: 130px;
+    }
+
     .body-text {
       font-size: 0.93rem;
       line-height: 2.2;
-      color: #003E79;
+      color: var(--navy);
       letter-spacing: 0.04em;
+      margin-bottom: 5rem;
     }
     .body-text p {
       text-indent: 1em;
@@ -247,22 +271,16 @@
 <div class="page">
 
   <!-- タイトルエリア -->
-  <div class="news-header fi">
-    <p class="news-title">「本と商店街 2026」に出店します</p>
-    <p class="news-date">2026.05.03</p>
+  <div class="news-header fi" id="newsHeader">
+    <p class="news-category" id="newsCategory"></p>
+    <p class="news-title" id="newsTitle">読み込み中...</p>
+    <p class="news-date" id="newsDate"></p>
   </div>
 
   <!-- 本文エリア -->
   <div class="article-body">
-
-    <a href="index.html" class="back-link fi">← お知らせ一覧に戻る</a>
-
-    <div class="body-text fi">
-      <p>今年も「本と商店街 2026」に出店することになりました。毎年この時期に開かれる、本屋と商店街が一体になったイベントで、川添いとしては三度目の参加となります。</p>
-      <p>今回は選書のテーマを「川と時間」に絞り、川にまつわる小説・詩集・随筆を中心に棚をつくる予定です。川辺の午後にゆっくり読みたくなるような本を、丁寧に選んでお持ちします。</p>
-      <p>会期中は店主も会場におりますので、本のことや店のことなど、気軽にお声がけください。詳しい日程や会場については、随時インスタグラムにてお知らせします。</p>
-    </div>
-
+    <a href="#" class="back-link fi">← お知らせ一覧に戻る</a>
+    <div id="articleContent"></div>
   </div>
 
   <!-- Footer -->
@@ -307,6 +325,86 @@
     { threshold: 0.08, rootMargin: '0px 0px -20px 0px' }
   );
   document.querySelectorAll('.fi').forEach(el => io.observe(el));
+
+  function formatDate(str) {
+    return str ? str.replace(/-/g, '.') : '';
+  }
+
+  function blocksToHtml(blocks) {
+    let html = '';
+    let bodyBuf = [];
+
+    function flushBody() {
+      if (bodyBuf.length === 0) return;
+      html += `<div class="body-text fi">${bodyBuf.join('')}</div>`;
+      bodyBuf = [];
+    }
+
+    blocks.forEach(block => {
+      const type = block.type;
+      const rt = (block[type]?.rich_text || []).map(t => t.plain_text).join('');
+
+      if (type === 'heading_1' || type === 'heading_2' || type === 'heading_3') {
+        flushBody();
+        html += `<h2 class="section-heading fi" id="${block.id}">${rt}</h2>`;
+      } else if (type === 'paragraph') {
+        if (rt) bodyBuf.push(`<p>${rt}</p>`);
+      } else if (type === 'bulleted_list_item' || type === 'numbered_list_item') {
+        if (rt) bodyBuf.push(`<p>・${rt}</p>`);
+      } else if (type === 'image' && block.imageUrl) {
+        flushBody();
+        html += `<img src="${block.imageUrl}" alt="" class="fi" style="width:100%;display:block;margin:2rem 0;">`;
+      }
+    });
+
+    flushBody();
+    return html;
+  }
+
+  async function loadArticle() {
+    const params = new URLSearchParams(location.search);
+    const id = params.get('id');
+
+    if (!id) {
+      document.getElementById('newsTitle').textContent = '記事が見つかりません';
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/notion?type=news&id=${encodeURIComponent(id)}`);
+      const data = await res.json();
+
+      const props = data.page?.properties || {};
+      const category = props['カテゴリ']?.select?.name || '';
+      const dateStr = formatDate(props['日付']?.date?.start || '');
+      const title = (props['タイトル']?.title || []).map(t => t.plain_text).join('');
+      const bodyProp = (props['本文']?.rich_text || []).map(t => t.plain_text).join('');
+
+      document.getElementById('newsCategory').textContent = category;
+      document.getElementById('newsDate').textContent = dateStr;
+      document.getElementById('newsTitle').textContent = title || 'お知らせ';
+      if (title) document.title = `${title} — お知らせ | 川添い`;
+
+      const content = document.getElementById('articleContent');
+      const blocks = data.blocks || [];
+
+      // rich_textプロパティの本文があれば優先、なければブロックを使用
+      if (bodyProp) {
+        const paras = bodyProp.split(/\n+/).filter(Boolean);
+        content.innerHTML = `<div class="body-text fi">${paras.map(p => `<p>${p}</p>`).join('')}</div>`;
+      } else if (blocks.length > 0) {
+        content.innerHTML = blocksToHtml(blocks);
+      } else {
+        content.innerHTML = '<div class="body-text fi"><p>本文がありません。</p></div>';
+      }
+
+      content.querySelectorAll('.fi').forEach(el => io.observe(el));
+    } catch (e) {
+      document.getElementById('newsTitle').textContent = '記事の取得に失敗しました';
+    }
+  }
+
+  loadArticle();
 </script>
 
 </body>
