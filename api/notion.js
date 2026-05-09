@@ -43,6 +43,30 @@ module.exports = async function handler(req, res) {
     });
   }
 
+  // quoteブロックのhas_childrenがtrueの場合、子ブロックをフラット化して展開する
+  async function fetchBlocksFlat(blockId) {
+    const r = await fetch(
+      `https://api.notion.com/v1/blocks/${blockId}/children?page_size=100`,
+      { headers: notionHeaders }
+    );
+    const data = await r.json();
+    const blocks = data.results ?? [];
+
+    const flat = [];
+    for (const block of blocks) {
+      flat.push(block);
+      if (block.has_children && block.type === 'quote') {
+        const cr = await fetch(
+          `https://api.notion.com/v1/blocks/${block.id}/children?page_size=100`,
+          { headers: notionHeaders }
+        );
+        const cd = await cr.json();
+        flat.push(...(cd.results ?? []));
+      }
+    }
+    return flat;
+  }
+
   try {
     // ── ニュース ──
     if (req.query.type === 'news') {
@@ -51,12 +75,11 @@ module.exports = async function handler(req, res) {
 
       // 個別記事
       if (pageId) {
-        const [pageRes, blocksRes] = await Promise.all([
-          fetch(`https://api.notion.com/v1/pages/${pageId}`, { headers: notionHeaders }),
-          fetch(`https://api.notion.com/v1/blocks/${pageId}/children?page_size=100`, { headers: notionHeaders }),
+        const [page, flatBlocks] = await Promise.all([
+          fetch(`https://api.notion.com/v1/pages/${pageId}`, { headers: notionHeaders }).then(r => r.json()),
+          fetchBlocksFlat(pageId),
         ]);
-        const [page, blocks] = await Promise.all([pageRes.json(), blocksRes.json()]);
-        return res.status(200).json({ page, blocks: processBlocks(blocks.results ?? []) });
+        return res.status(200).json({ page, blocks: processBlocks(flatBlocks) });
       }
 
       // 一覧
@@ -73,15 +96,16 @@ module.exports = async function handler(req, res) {
       return res.status(200).json(data);
     }
 
+    // ── 通信 個別記事 ──
     if (pageId) {
-      const [pageRes, blocksRes] = await Promise.all([
-        fetch(`https://api.notion.com/v1/pages/${pageId}`, { headers: notionHeaders }),
-        fetch(`https://api.notion.com/v1/blocks/${pageId}/children?page_size=100`, { headers: notionHeaders }),
+      const [page, flatBlocks] = await Promise.all([
+        fetch(`https://api.notion.com/v1/pages/${pageId}`, { headers: notionHeaders }).then(r => r.json()),
+        fetchBlocksFlat(pageId),
       ]);
-      const [page, blocks] = await Promise.all([pageRes.json(), blocksRes.json()]);
-      return res.status(200).json({ page, blocks: processBlocks(blocks.results ?? []) });
+      return res.status(200).json({ page, blocks: processBlocks(flatBlocks) });
     }
 
+    // ── 通信 一覧 ──
     const limit = req.query.limit ? parseInt(req.query.limit, 10) : undefined;
 
     const dbRes = await fetch(`https://api.notion.com/v1/databases/${DB_ID}/query`, {
