@@ -199,6 +199,16 @@
     }
     .body-text p:last-child { margin-bottom: 0; }
 
+    .notion-quote {
+      background: #C8DFE8;
+      font-size: 0.85em;
+      padding: 1em;
+      margin-bottom: 2rem;
+      line-height: 2.2;
+      letter-spacing: 0.04em;
+      color: var(--navy);
+    }
+
     .book-image {
       width: 100%;
       max-width: 280px;
@@ -404,6 +414,11 @@
         if (rt) bodyBuf.push(`<p>${rt}</p>`);
       } else if (type === 'bulleted_list_item' || type === 'numbered_list_item') {
         if (rt) bodyBuf.push(`<p>・${rt}</p>`);
+      } else if (type === 'quote') {
+        if (rt) {
+          flushBody();
+          html += `<blockquote class="notion-quote fi">${rt}</blockquote>`;
+        }
       } else if (type === 'image' && block.imageUrl) {
         flushBody();
         html += `<img src="${block.imageUrl}" alt="" class="fi" style="width:100%;display:block;margin:2rem 0;">`;

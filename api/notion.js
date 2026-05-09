@@ -27,6 +27,13 @@ module.exports = async function handler(req, res) {
         }));
         return { ...block, paragraph: { ...block.paragraph, rich_text: rt } };
       }
+      if (block.type === 'quote') {
+        const rt = (block.quote.rich_text || []).map(t => ({
+          ...t,
+          plain_text: t.plain_text.replace(/\n/g, '<br>'),
+        }));
+        return { ...block, quote: { ...block.quote, rich_text: rt } };
+      }
       if (block.type === 'image') {
         const img = block.image;
         const url = img.type === 'file' ? img.file.url : (img.external?.url || '');
