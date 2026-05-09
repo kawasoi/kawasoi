@@ -19,10 +19,13 @@ module.exports = async function handler(req, res) {
   const pageId = req.query.id;
 
   function processRichText(richText) {
-    return (richText || []).map(t => ({
-      ...t,
-      plain_text: (t.plain_text || '').replace(/\n/g, '<br>'),
-    }));
+    return (richText || []).map(t => {
+      let text = (t.plain_text || '').replace(/\n/g, '<br>');
+      if (t.href) {
+        text = `<a href="${t.href}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+      }
+      return { ...t, plain_text: text };
+    });
   }
 
   function processBlocks(blocks) {
