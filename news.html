@@ -324,7 +324,7 @@
         });
         li.innerHTML = `
           <p class="article-meta">
-            ${dateStr}${dateStr && category ? '<span class="article-meta-divider"></span>' : ''}${category}
+            ${category}${category && dateStr ? '<span class="article-meta-divider"></span>' : ''}${dateStr}
           </p>
           <p class="article-title">${title}</p>
         `;
